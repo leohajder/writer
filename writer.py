@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import messagebox
+from tkinter import filedialog
 
 filename = None
 saved = True
@@ -6,10 +8,10 @@ saved = True
 def fNew(*args):
     global filename, saved
     if(saved == False):
-        result = messagebox.askyesnocancel("Save file?", "Do you want to save the current file?")
-        if(result == True):
+        save = promptToSave()
+        if(save == True):
             fSave()
-        elif(result == None):
+        elif(save == None):
             return
     filename = None
     text.delete(0.0, END)
@@ -18,10 +20,10 @@ def fNew(*args):
 def fOpen(*args):
     global filename, saved
     if(saved == False):
-        result = messagebox.askyesnocancel("Save file?", "Do you want to save the current file?")
-        if(result == True):
+        save = promptToSave()
+        if(save == True):
             fSave()
-        elif(result == None):
+        elif(save == None):
             return
     try:
         f = filedialog.askopenfile(filetypes = [('text files', '.txt'),('all files', '.*')])
@@ -60,51 +62,56 @@ def fSaveAs(*args):
 def onExit(*args):
     global saved
     if(saved == False):
-        result = messagebox.askyesnocancel("Save file?", "Do you want to save the current file?")
-        if(result == True):
+        save = promptToSave()
+        if(save == True):
             fSave()
-        elif(result == None):
+        elif(save == None):
             return
-    writer.destroy()
+    app.destroy()
 
 def setSavedFalse(key):
     global saved
     if(key.keysym.isalpha() or key.keysym.isdigit() or key.keysym in ["Return", "Tab", "Backspace", "Delete"]): #any key that changes text
         saved = False
-       
+        
+def promptToSave():
+       return messagebox.askyesnocancel("Save file?", "Do you want to save the current file?")
+
 #initialization
-writer = Tk()
-writer.title("Writer")
+app = Tk()
+app.title("Writer")
 
 #initializing text container
-text = Text(writer)
+text = Text(app)
+
+about = "A simple text editor in Python 3.5.2 using the Tkinter module for GUI programming. \nAuthor: Leo Hajder (leohajder.github.io)"
 
 #menu
-menubar = Menu(writer)
+menubar = Menu(app)
 filemenu = Menu(menubar, tearoff = 0)
 filemenu.add_command(label = "New", command = fNew)
 filemenu.add_command(label = "Open", command = fOpen)
 filemenu.add_command(label = "Save", command = fSave)
 filemenu.add_command(label = "Save As", command = fSaveAs)
 filemenu.add_separator()
-filemenu.add_command(label = "About", command = lambda: messagebox.showinfo("About", "A simple text editor made for fun and practice with Python 3.5.2 using the Tkinter module for GUI programming. \nAuthor: Leo Hajder (leohajder.github.io)"))
+filemenu.add_command(label = "About", command = lambda: messagebox.showinfo("About", about))
 filemenu.add_separator()
 filemenu.add_command(label = "Exit", command = onExit)
 menubar.add_cascade(label = "File", menu = filemenu)
-writer.config(menu=menubar)
+app.config(menu=menubar)
 
 #key Bindings
-writer.bind('<Control-n>', fNew)
-writer.bind('<Control-o>', fOpen)
-writer.bind('<Control-s>', fSave)
-writer.bind('<Key>', setSavedFalse)
+app.bind('<Control-n>', fNew)
+app.bind('<Control-o>', fOpen)
+app.bind('<Control-s>', fSave)
+app.bind('<Key>', setSavedFalse)
 
 #save before exit?
-writer.protocol("WM_DELETE_WINDOW", onExit)
+app.protocol("WM_DELETE_WINDOW", onExit)
 
 #deploying text container
 text.pack(expand=True, fill='both')
 
 text.focus()
 
-writer.mainloop()
+app.mainloop()
